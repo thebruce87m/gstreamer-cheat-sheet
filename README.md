@@ -1,6 +1,6 @@
 # gstreamer-cheat-sheet
 
-Send a stream from one PC to another:
+## Send a stream from one PC to another:
 
 
 Server:
@@ -15,4 +15,140 @@ Client:
 
 ```
 gst-launch-1.0 udpsrc port=9002 caps="application/x-rtp" ! queue ! rtph264depay ! queue ! avdec_h264 ! queue ! autovideosink
+```
+
+
+## Undistort
+
+Undistort App:
+
+```
+//
+// g++ calibrate.cpp -o calibrate `pkg-config --cflags --libs gstreamer-1.0 opencv4`
+//
+
+#include <gst/gst.h>
+#include <opencv2/opencv.hpp>
+
+
+//
+// USB Webcam
+//
+const char *string = " \
+gst-launch-1.0 -v v4l2src device=/dev/video0 ! videoconvert ! cameraundistort name=undist ! cameracalibrate name=cal ! ximagesink \
+";
+
+//
+// RTSP
+//
+const char *string2 = " \
+gst-launch-1.0 -v rtspsrc location=rtsp://username:password@192.168.0.97/ch0/stream0 ! rtph264depay ! avdec_h264 ! videoconvert ! videoscale \
+        ! video/x-raw,width=600,height=300 ! cameraundistort name=undist ! cameracalibrate name=cal ! ximagesink \
+";
+
+//
+//
+//
+const char *string3 = " \
+gst-launch-1.0 -v rtspsrc location=rtsp://username:password@192.168.0.86/Streaming/Channels/102/ ! rtph264depay ! avdec_h264 ! videoconvert \
+ ! cameraundistort name=undist ! cameracalibrate name=cal ! ximagesink \
+";
+
+
+gchar *
+camera_serialize_undistort_settings (cv::Mat & cameraMatrix,
+    cv::Mat & distCoeffs)
+{
+  cv::FileStorage fs (".xml", cv::FileStorage::WRITE + cv::FileStorage::MEMORY);
+  fs << "cameraMatrix" << cameraMatrix;
+  fs << "distCoeffs" << distCoeffs;
+  std::string buf = fs.releaseAndGetString ();
+
+  return g_strdup (buf.c_str ());
+}
+
+int
+main (int argc, char *argv[])
+{
+
+  gchar value[100] = {0};
+
+  GstElement *pipeline;
+  GstElement *filesrc;
+  GstMessage *msg;
+  GstBus *bus;
+  GError *error = NULL;
+
+  gst_init (&argc, &argv);
+
+  //pipeline = gst_parse_launch ("filesrc name=my_filesrc ! mad ! osssink", &error);
+  pipeline = gst_parse_launch (string3, &error);
+
+
+
+  if (!pipeline) {
+    g_print ("Parse error: %s\n", error->message);
+    exit (1);
+  }
+
+
+
+  gst_element_set_state (pipeline, GST_STATE_PLAYING);
+
+  bus = gst_element_get_bus (pipeline);
+
+  /* wait until we either get an EOS or an ERROR message. Note that in a real
+   * program you would probably not use gst_bus_poll(), but rather set up an
+   * async signal watch on the bus and run a main loop and connect to the
+   * bus's signals to catch certain messages or all messages */
+  msg = gst_bus_poll (bus, (GstMessageType) ( GST_MESSAGE_EOS | GST_MESSAGE_ERROR ), -1);
+
+  switch (GST_MESSAGE_TYPE (msg)) {
+    case GST_MESSAGE_EOS: {
+      g_print ("EOS\n");
+      break;
+    }
+    case GST_MESSAGE_ERROR: {
+      GError *err = NULL; /* error to show to users                 */
+      gchar *dbg = NULL;  /* additional debug string for developers */
+
+      gst_message_parse_error (msg, &err, &dbg);
+      if (err) {
+          filesrc = gst_bin_get_by_name (GST_BIN (pipeline), "undist");
+
+        gchar *val;
+
+        g_object_get (filesrc, "settings", &val, NULL);
+        
+        g_print("Data:\n");
+
+        g_print ("%s", val);
+
+        g_object_unref (filesrc);
+
+        g_print("\nDone\n");
+
+        g_printerr ("ERROR: %s\n", err->message);
+        g_error_free (err);
+      }
+      if (dbg) {
+        g_printerr ("[Debug details: %s]\n", dbg);
+        g_free (dbg);
+      }
+    }
+    default:
+      g_printerr ("Unexpected message of type %d", GST_MESSAGE_TYPE (msg));
+      break;
+  }
+  gst_message_unref (msg);
+
+
+  gst_element_set_state (pipeline, GST_STATE_NULL);
+  gst_object_unref (pipeline);
+  gst_object_unref (bus);
+
+  return 0;
+}
+
+
 ```
