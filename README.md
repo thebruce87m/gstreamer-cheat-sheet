@@ -20,6 +20,17 @@ gst-launch-1.0 udpsrc port=9002 caps="application/x-rtp" ! queue ! rtph264depay 
 
 ## Undistort
 
+Undistort script:
+
+```bash
+#!/bin/bash
+
+DATA="<?xml version=\"1.0\"?><opencv_storage><cameraMatrix type_id=\"opencv-matrix\"><rows>3</rows><cols>3</cols><dt>f</dt><data>2.85762378e+03 0. 1.93922961e+03 0. 2.84566113e+03 1.12195850e+03 0. 0. 1.</data></cameraMatrix><distCoeffs type_id=\"opencv-matrix\"><rows>5</rows><cols>1</cols><dt>f</dt><data>-6.14039421e-01 4.00045455e-01 1.47132971e-03 2.46772077e-04 -1.20407566e-01</data></distCoeffs></opencv_storage>"
+
+gst-launch-1.0 -vv videotestsrc ! videoconvert ! cameraundistort settings="$DATA" ! videoconvert ! autovideosink
+```
+
+
 Undistort App:
 
 ```
