@@ -167,5 +167,42 @@ main (int argc, char *argv[])
   return 0;
 }
 
+```
+
+## RTSP streams mosaic with undistort
+
+```
+#!/bin/bash
+
+DATA="<?xml version=\"1.0\"?><opencv_storage><cameraMatrix type_id=\"opencv-matrix\"><rows>3</rows><cols>3</cols><dt>f</dt><data>2.85762378e+03 0. 1.93922961e+03 0. 2.84566113e+03 1.12195850e+03 0. 0. 1.</data></cameraMatrix><distCoeffs type_id=\"opencv-matrix\"><rows>5</rows><cols>1</cols><dt>f</dt><data>-6.14039421e-01 4.00045455e-01 1.47132971e-03 2.46772077e-04 -1.20407566e-01</data></distCoeffs></opencv_storage>"
+
+
+gst-launch-1.0 -e \
+    videomixer name=mix \
+            sink_0::xpos=0   sink_0::ypos=0  sink_0::alpha=0\
+            sink_1::xpos=0   sink_1::ypos=0 \
+            sink_2::xpos=0 sink_2::ypos=300 \
+            \
+            \
+    rtspsrc location=rtsp://username:password@192.168.0.110/ch0/stream0 ! rtph264depay ! avdec_h264 ! videoconvert \
+        ! queue \
+        ! cameraundistort settings="$DATA" \
+        ! queue \
+        ! videoscale \
+        ! video/x-raw,width=600,height=300 \
+        ! mix.sink_1 \
+        \
+        \
+    rtspsrc location=rtsp://username:password@192.168.0.118/ch0/stream0 ! rtph264depay ! avdec_h264 ! videoconvert \
+        ! decodebin ! videoconvert \
+        ! queue \
+        ! cameraundistort settings="$DATA" \
+        ! queue \
+        ! videoscale \
+        ! video/x-raw,width=600,height=300 \
+        ! mix.sink_2 \
+        \
+        \
+        mix. ! queue ! videoconvert ! queue ! autovideosink
 
 ```
