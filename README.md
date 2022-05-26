@@ -3,7 +3,18 @@
 ## RTSP Stream
 
 ```bash
-gst-launch-1.0 -v rtspsrc location=rtsp://username:password@192.168.0.110/ch0/stream0 ! rtph264depay ! avdec_h264 ! videoconvert !  autovideosink
+gst-launch-1.0 -v rtspsrc location=rtsp://username:password@192.168.0.110/ch0/stream0 \
+! rtph264depay \
+! avdec_h264 \
+! videoconvert \
+! autovideosink
+```
+
+```bash
+gst-launch-1.0 -v rtspsrc location=rtsp://username:password@192.168.0.110/ch0/stream0 \
+! decodebin \
+! videoconvert \
+! autovideosink
 ```
 
 ## Send a stream from one PC to another:
