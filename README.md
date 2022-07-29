@@ -48,12 +48,13 @@ gst-launch-1.0 -e rtspsrc location=rtsp://username:password@192.168.0.110/ch0/st
 Note:
 
 * May need `h264parse config-interval=-1` to inject decoding info into file to allow playback
+* `10000000000` is 10 seconds in nanoseconds
 
 ```bash
 gst-launch-1.0 -e rtspsrc location=rtsp://username:password@192.168.0.110/ch0/stream0 \
 ! rtph264depay \
 ! h264parse \
-! splitmuxsink location=file-%03d.mp4 max-size-time=10
+! splitmuxsink location=file-%03d.mp4 max-size-time=10000000000
 ```
 
 ### Save stream to multiple ts file chunks, max size of each is 10 seconds
