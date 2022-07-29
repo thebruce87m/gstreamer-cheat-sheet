@@ -44,6 +44,11 @@ gst-launch-1.0 -e rtspsrc location=rtsp://username:password@192.168.0.110/ch0/st
 ```
 
 ### Save stream to multiple file chunks, max size of each is 10 seconds
+
+Note:
+
+* May need `h264parse config-interval=-1` to inject decoding info into file to allow playback
+
 ```bash
 gst-launch-1.0 -e rtspsrc location=rtsp://username:password@192.168.0.110/ch0/stream0 \
 ! rtph264depay \
