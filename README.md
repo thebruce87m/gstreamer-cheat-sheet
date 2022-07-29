@@ -72,6 +72,15 @@ rtspsrc location=rtsp://admin:password@192.168.0.154/ch0/stream0 \
 ! multifilesink next-file=5 max-file-duration=10000000000 location=video_%02d.ts
 ```
 
+### Play back multiple ts files sequentially
+```bash
+gst-launch-1.0 -v \
+multifilesrc location=video_%02d.ts \
+! decodebin \
+! videoconvert \
+! autovideosink
+```
+
 
 ### Record two streams at once:
 ```bash
