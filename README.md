@@ -2,6 +2,17 @@
 
 ## RTSP Stream
 
+Notes:
+
+* Use `location=rtspt:...` to enable tcp
+
+### Simple way to play a stream
+```bash
+gst-play-1.0 rtsp://username:password@192.168.0.110/ch0/stream0
+```
+
+
+### Display H264 Stream with explicit decode pipeline
 ```bash
 gst-launch-1.0 -v rtspsrc location=rtsp://username:password@192.168.0.110/ch0/stream0 \
 ! rtph264depay \
@@ -10,11 +21,34 @@ gst-launch-1.0 -v rtspsrc location=rtsp://username:password@192.168.0.110/ch0/st
 ! autovideosink
 ```
 
+
+### Display an RTSP stream with automatic decode using [decodebin](https://gstreamer.freedesktop.org/documentation/playback/decodebin.html?gi-language=c)
+
+Will automatically decode H264, H265
+
 ```bash
 gst-launch-1.0 -v rtspsrc location=rtsp://username:password@192.168.0.110/ch0/stream0 \
 ! decodebin \
 ! videoconvert \
 ! autovideosink
+```
+
+### Save a stream directly to an H264 file
+
+```bash
+gst-launch-1.0 -e rtspsrc location=rtsp://username:password@192.168.0.110/ch0/stream0 \
+! rtph264depay \
+! h264parse \
+! mp4mux \
+! filesink location=file.mp4
+```
+
+### Save stream to multiple file chunks, max size of each is 10 seconds
+```bash
+gst-launch-1.0 -e rtspsrc location=rtsp://username:password@192.168.0.110/ch0/stream0 \
+! rtph264depay \
+! h264parse \
+! splitmuxsink location=file-%03d.mp4 max-size-time=10
 ```
 
 ## Send a stream from one PC to another:
