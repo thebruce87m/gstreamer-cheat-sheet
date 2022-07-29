@@ -51,6 +51,39 @@ gst-launch-1.0 -e rtspsrc location=rtsp://username:password@192.168.0.110/ch0/st
 ! splitmuxsink location=file-%03d.mp4 max-size-time=10
 ```
 
+### Record two streams at once:
+```bash
+gst-launch-1.0 -e \
+rtspsrc location=rtsp://admin:password@192.168.0.154/ch0/stream0 \
+! rtph264depay \
+! h264parse \
+! mp4mux \
+! filesink location=154.mp4 \
+\
+\
+rtspsrc location=rtsp://admin:password@192.168.0.145/ch0/stream0 \
+! rtph264depay \
+! h264parse \
+! mp4mux \
+! filesink location=145.mp4
+```
+
+### Play both recordings
+
+```bash
+gst-launch-1.0 \
+filesrc location=145.mp4 \
+! decodebin \
+! videoconvert \
+! autovideosink \
+\
+\
+filesrc location=154.mp4 \
+! decodebin \
+! videoconvert \
+! autovideosink
+```
+
 ## Send a stream from one PC to another:
 
 
