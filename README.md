@@ -43,7 +43,7 @@ gst-launch-1.0 -e rtspsrc location=rtsp://username:password@192.168.0.110/ch0/st
 ! filesink location=file.mp4
 ```
 
-### Save stream to multiple file chunks, max size of each is 10 seconds
+### Save stream to multiple mp4 file chunks, max size of each is 10 seconds
 
 Note:
 
@@ -55,6 +55,23 @@ gst-launch-1.0 -e rtspsrc location=rtsp://username:password@192.168.0.110/ch0/st
 ! h264parse \
 ! splitmuxsink location=file-%03d.mp4 max-size-time=10
 ```
+
+### Save stream to multiple ts file chunks, max size of each is 10 seconds
+
+Note:
+
+* `next-file=5` tells multifilesink to be in "max-size" mode
+* `10000000000` is 10 seconds in nanoseconds
+
+```bash
+gst-launch-1.0 -e \
+rtspsrc location=rtsp://admin:password@192.168.0.154/ch0/stream0 \
+! rtph264depay \
+! h264parse \
+! mpegtsmux \
+! multifilesink next-file=5 max-file-duration=10000000000 location=video_%02d.ts
+```
+
 
 ### Record two streams at once:
 ```bash
