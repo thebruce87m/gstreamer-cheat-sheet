@@ -5,6 +5,7 @@
 Notes:
 
 * Use `location=rtspt:...` to enable tcp
+* Use `rtspsrc latency=0 rtsp...` to reduce latency
 
 ### Simple way to play a stream
 ```bash
