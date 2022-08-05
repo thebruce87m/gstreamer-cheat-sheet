@@ -6,7 +6,7 @@ Notes:
 
 * For `rtspsrc` use `location=rtspt:...` to enable tcp
 * For `rtspsrc` use `latency=0` to reduce latency
-* For `rtspsrc` use `config-interval=-1` to send with every IDR frame
+* For `h264parse` use `config-interval=-1` to send with every IDR frame
 
 ### Simple way to play a stream
 ```bash
