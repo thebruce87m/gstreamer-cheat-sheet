@@ -84,6 +84,28 @@ multifilesrc location=video_%02d.ts \
 ! autovideosink
 ```
 
+### Save stream to HLS
+
+```bash
+gst-launch-1.0 -e \
+rtspsrc location=rtsp://admin:password@192.168.0.154/ch0/stream0 \
+! rtph264depay \
+! h264parse \
+! mpegtsmux \
+! hlssink
+```
+
+Example file output:
+```
+playlist.m3u8
+segment00000.ts
+segment00001.ts
+segment00002.ts
+segment00003.ts
+...
+```
+
+
 
 ### Record two streams at once:
 ```bash
