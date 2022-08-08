@@ -84,7 +84,7 @@ multifilesrc location=video_%02d.ts \
 ! autovideosink
 ```
 
-### Save stream to HLS
+### Save stream to HLS - hlssink
 
 ```bash
 gst-launch-1.0 -e \
@@ -103,6 +103,19 @@ segment00001.ts
 segment00002.ts
 segment00003.ts
 ...
+```
+
+### Save stream to HLS - hlssink2
+
+Note: 
+
+* `playlist-length=0` to save all chunks, otherwise only the last 5 will be kept
+
+```bash
+gst-launch-1.0 -e rtspsrc location=rtspt://admin:password@192.168.0.154/ch0/stream0 \
+! rtph264depay \
+! h264parse \
+! hlssink2 playlist-length=0
 ```
 
 
