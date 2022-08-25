@@ -353,3 +353,39 @@ gst-launch-1.0 -e \
         mix. ! queue ! videoconvert ! queue ! autovideosink
 
 ```
+
+
+# CMake
+
+```cmake
+cmake_minimum_required(VERSION 3.16)
+
+project(PlayMp4)
+
+set(CMAKE_C_STANDARD 11)
+
+
+find_package(PkgConfig) 
+pkg_search_module(GLIB REQUIRED glib-2.0) 
+pkg_check_modules(GST REQUIRED gstreamer-1.0)
+pkg_check_modules(GST_APP REQUIRED gstreamer-app-1.0)
+pkg_check_modules(GST_VIDEO REQUIRED gstreamer-video-1.0)
+
+pkg_search_module(GST REQUIRED gstreamer-1.0>=1.4
+        gstreamer-sdp-1.0>=1.4
+        gstreamer-app-1.0>=1.4
+        gstreamer-video-1.0>=1.4
+        )
+
+
+add_executable(PlayMp4 src/main.c)
+
+target_compile_options(PlayMp4 PRIVATE 
+-Wextra
+-Wall
+-Wfloat-equal
+)
+
+target_include_directories(PlayMp4 PRIVATE ${GST_INCLUDE_DIRS})
+target_link_libraries(PlayMp4 ${GST_LIBRARIES})
+```
