@@ -118,6 +118,16 @@ gst-launch-1.0 -e rtspsrc location=rtspt://admin:password@192.168.0.154/ch0/stre
 ! hlssink2 playlist-length=0
 ```
 
+### Play back hls file
+
+```bash
+gst-launch-1.0 filesrc location="playlist.m3u8" \
+! hlsdemux \
+! decodebin \
+! videoconvert \
+! videoscale \
+! autovideosink
+```
 
 
 ### Record two streams at once:
