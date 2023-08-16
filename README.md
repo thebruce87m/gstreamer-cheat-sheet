@@ -35,6 +35,19 @@ gst-launch-1.0 -v rtspsrc location=rtsp://username:password@192.168.0.110/ch0/st
 ! autovideosink
 ```
 
+### Save a single image from a stream
+
+```bash
+gst-launch-1.0 -e rtspsrc location=rtsp://username:password@192.168.0.110/stream0 \
+! rtph265depay \
+! h265parse \
+! avdec_h265 \
+! videoconvert \
+! jpegenc snapshot=TRUE \
+! filesink location=save.jpg
+```
+
+
 ### Save a stream directly to an H264 file
 
 ```bash
