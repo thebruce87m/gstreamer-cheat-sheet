@@ -3,7 +3,7 @@
 ## Basic Files
 
 
-H265 mp4 file, manual decode pipeline:
+### H265 mp4 file, manual decode pipeline:
 
 ```bash
 gst-launch-1.0 filesrc location="./file.mp4" \
@@ -13,7 +13,6 @@ gst-launch-1.0 filesrc location="./file.mp4" \
 ! videoconvert \
 ! autovideosink
 ```
-
 
 ## RTSP Stream
 
@@ -426,4 +425,76 @@ target_compile_options(PlayMp4 PRIVATE
 
 target_include_directories(PlayMp4 PRIVATE ${GST_INCLUDE_DIRS})
 target_link_libraries(PlayMp4 ${GST_LIBRARIES})
+```
+
+
+
+# Python example
+
+```python
+import cv2
+import gi
+import numpy as np
+gi.require_version('Gst', '1.0')
+from gi.repository import Gst, GLib
+
+def gst_to_opencv(sample):
+    buf = sample.get_buffer()
+    caps = sample.get_caps()
+    array = np.ndarray(
+        (caps.get_structure(0).get_value('height'),
+         caps.get_structure(0).get_value('width'),
+         3),
+        buffer=buf.extract_dup(0, buf.get_size()),
+        dtype=np.uint8)
+    return array
+
+def open_video(video_path):
+    # Initialize GStreamer
+    Gst.init(None)
+
+    # Software decode
+    pipeline_str = f'filesrc location={video_path} ! qtdemux ! h265parse ! avdec_h265  ! videoconvert ! video/x-raw,format=BGR ! appsink name=sink emit-signals=true sync=true'
+
+    # nvidia / Jetson
+    # pipeline_str = f'filesrc location={video_path} ! qtdemux ! h265parse ! nvv4l2decoder  ! nvvideoconvert ! video/x-raw,format=BGR ! appsink name=sink emit-signals=true sync=true'
+
+
+    # Create GStreamer pipeline with an explicit output format
+    pipeline = Gst.parse_launch(
+        pipeline_str
+    )
+
+    appsink = pipeline.get_by_name('sink')
+
+    # Start playing
+    print('Starting pipeline')
+    pipeline.set_state(Gst.State.PLAYING)
+
+    while True:
+        sample = appsink.emit('pull-sample')
+        if sample:
+            buf = sample.get_buffer()
+            pts = buf.pts
+            if pts is not None:
+                # Convert nanoseconds to seconds
+                pts_seconds = pts / 1e9
+                print(f"PTS: {pts}")
+
+            frame = gst_to_opencv(sample)
+
+            frame = cv2.resize(frame, (800, 600))
+
+            cv2.imshow('Frame', frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        else:
+            break
+
+    # Clean up
+    pipeline.set_state(Gst.State.NULL)
+    cv2.destroyAllWindows()
+
+# Example usage
+open_video("video.mp4")
 ```
