@@ -3,7 +3,7 @@
 ## Basic Files
 
 
-H265 mp4 file, manualy decode pipeline:
+H265 mp4 file, manual decode pipeline:
 
 ```bash
 gst-launch-1.0 filesrc location="./file.mp4" \
