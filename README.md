@@ -1,5 +1,20 @@
 # gstreamer-cheat-sheet
 
+## Basic Files
+
+
+H265 mp4 file, manualy decode pipeline:
+
+```bash
+gst-launch-1.0 filesrc location="./file.mp4" \
+! qtdemux \
+! h265parse \
+! avdec_h265  \
+! videoconvert \
+! autovideosink
+```
+
+
 ## RTSP Stream
 
 Notes:
