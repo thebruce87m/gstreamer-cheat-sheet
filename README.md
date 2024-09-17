@@ -2,6 +2,20 @@
 
 ## Basic Files
 
+### Record example
+
+1fps example video:
+
+```bash
+gst-launch-1.0 -e videotestsrc \
+! video/x-raw,width=640,height=480,framerate=1/1 \
+! timeoverlay font-desc="Sans, 50" \
+! queue \
+! x264enc \
+! mp4mux \
+! filesink location=video.mp4
+```
+
 
 ### H265 mp4 file, manual decode pipeline:
 
