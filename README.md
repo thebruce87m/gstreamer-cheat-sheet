@@ -405,6 +405,46 @@ gst-launch-1.0 -e \
 
 ```
 
+# Video Mosaic
+
+```bash
+#!/bin/bash
+
+# Input video files
+
+video1="253.mp4"
+video2="90.mp4"
+video3="98.mp4"
+video4="213.mp4"
+video5="95.mp4"
+video6="94.mp4"
+
+
+# Mosaic width and height of each video
+tile_width=640
+tile_height=360
+
+
+
+# GStreamer pipeline with dynamic pad linking for decodebin
+gst-launch-1.0 \
+  compositor name=mix sink_0::xpos=0 sink_0::ypos=0 \
+                     sink_1::xpos=$tile_width sink_1::ypos=0 \
+                     sink_2::xpos=$(($tile_width * 2)) sink_2::ypos=0 \
+                     sink_3::xpos=0 sink_3::ypos=$tile_height \
+                     sink_4::xpos=$tile_width sink_4::ypos=$tile_height \
+                     sink_5::xpos=$(($tile_width * 2)) sink_5::ypos=$tile_height ! \
+  videoconvert ! autovideosink \
+  filesrc location="$video1" ! decodebin ! videoconvert ! videoscale ! video/x-raw, width=$tile_width, height=$tile_height ! mix. \
+  filesrc location="$video2" ! decodebin ! videoconvert ! videoscale ! video/x-raw, width=$tile_width, height=$tile_height ! mix. \
+  filesrc location="$video3" ! decodebin ! videoconvert ! videoscale ! video/x-raw, width=$tile_width, height=$tile_height ! mix. \
+  filesrc location="$video4" ! decodebin ! videoconvert ! videoscale ! video/x-raw, width=$tile_width, height=$tile_height ! mix. \
+  filesrc location="$video5" ! decodebin ! videoconvert ! videoscale ! video/x-raw, width=$tile_width, height=$tile_height ! mix. \
+  filesrc location="$video6" ! decodebin ! videoconvert ! videoscale ! video/x-raw, width=$tile_width, height=$tile_height ! mix.
+
+```
+
+
 
 # CMake
 
