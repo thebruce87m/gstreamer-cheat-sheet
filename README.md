@@ -204,9 +204,7 @@ filesrc location=154.mp4 \
 ! autovideosink
 ```
 
-# NVIDIA JETSON
-
-# Low latency using nveglglessink
+# NVIDIA JETSON / Low latency using nveglglessink
 
 ```bash
 gst-launch-1.0 -v rtspsrc latency = 0 location=rtsp://admin:password@192.168.250.120:554/stream1 \
@@ -218,6 +216,36 @@ gst-launch-1.0 -v rtspsrc latency = 0 location=rtsp://admin:password@192.168.250
 ! video/x-raw,width=1920,height=1080 \
 ! nveglglessink sync=0
 ```
+
+# NVIDIA JETSON / Two incoming streams tiled
+
+```bash
+gst-launch-1.0 \
+\
+\
+rtspsrc location=rtsp://admin:password@192.168.250.120:554/stream1 latency=200 ! \
+rtph265depay ! \
+h265parse ! \
+nvv4l2decoder ! \
+queue ! \
+mux.sink_0 \
+\
+\
+rtspsrc location=rtsp://admin:password@192.168.250.145:554/stream1 latency=200 ! \
+rtph265depay ! \
+h265parse ! \
+nvv4l2decoder ! \
+queue ! \
+mux.sink_1 \
+\
+\
+nvstreammux name=mux width=1920 height=1080 batch-size=2 batched-push-timeout=40000 ! \
+nvmultistreamtiler rows=2 columns=2 width=1920 height=1080 ! \
+nvvideoconvert ! \
+nveglglessink sync=0
+```
+
+
 
 ## Send a stream from one PC to another:
 
