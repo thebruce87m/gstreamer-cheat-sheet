@@ -204,6 +204,21 @@ filesrc location=154.mp4 \
 ! autovideosink
 ```
 
+# NVIDIA JETSON
+
+# Low latency using nveglglessink
+
+```bash
+gst-launch-1.0 -v rtspsrc latency = 0 location=rtsp://admin:password@192.168.250.120:554/stream1 \
+! rtph265depay \
+! h265parse \
+! nvv4l2decoder \
+! nvvideoconvert \
+! timeoverlay halignment=right valignment=bottom text="Stream time:" shaded-background=true font-desc="Sans, 24" \
+! video/x-raw,width=1920,height=1080 \
+! nveglglessink sync=0
+```
+
 ## Send a stream from one PC to another:
 
 
