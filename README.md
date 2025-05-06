@@ -249,6 +249,7 @@ nveglglessink sync=0
 
 ## Send a stream from one PC to another:
 
+### udp using 264
 
 Server:
 
@@ -264,6 +265,17 @@ Client:
 gst-launch-1.0 udpsrc port=9002 caps="application/x-rtp" ! queue ! rtph264depay ! queue ! avdec_h264 ! queue ! autovideosink
 ```
 
+### tcp using mjpeg
+
+Server:
+```bash
+gst-launch-1.0 videotestsrc is-live=true ! videoconvert ! jpegenc ! multipartmux ! tcpserversink host=0.0.0.0 port=8081
+```
+
+Client:
+```bash
+gst-launch-1.0 tcpclientsrc host=0.0.0.0 port=8081 ! multipartdemux ! jpegdec ! autovideosink
+```
 
 ## Undistort
 
